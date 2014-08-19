@@ -1,4 +1,5 @@
 require_relative 'core/irc'
+require_relative 'core/router'
 
 module Bocelli
   class Base
@@ -21,9 +22,11 @@ module Bocelli
 
     class << self
       include Bocelli::Core::IRC
+      include Bocelli::Core::Router
 
       def setup
-        @routes = {}
+        setup_router
+
         @modules = {}
       end
 
@@ -33,25 +36,8 @@ module Bocelli
         subclass.setup
       end
 
-      def on(route, &block)
-        @routes[route] = block
-      end
-
       def register(mod)
         @modules[mod.name[/[^:]+$/].downcase.intern] ||= mod
-      end
-
-      def match?(str, route)
-        case route
-        when Regexp
-          str =~ route
-        when String
-          str == route
-        end
-      end
-
-      def match(str)
-        @routes.detect { |k, _| match?(str, k) }
       end
 
       def mod_match(str)

@@ -1,29 +1,12 @@
+require_relative '../core/router'
+
 module Bocelli
   module Module
     module Base
-      attr_reader :routes
+      include Bocelli::Core::Router
 
       def setup
-        @routes = {}
-      end
-
-      def on(route, &block)
-        raise 'no block given' if block.nil?
-
-        @routes[route] = block
-      end
-
-      def match?(str, route)
-        case route
-        when Regexp
-          str =~ route
-        when String
-          str == route
-        end
-      end
-
-      def match(str)
-        @routes.detect { |k, _| match?(str, k) }
+        setup_router
       end
 
       class << self
