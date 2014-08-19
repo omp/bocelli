@@ -62,7 +62,7 @@ module Bocelli
 
           if $3 =~ /\A(\S+) (.*)/
             if (mod = Hash[@modules.map { |k, v| [k.to_s, v] }][$1])
-              if (match = mod.routes.detect { |k, _| match($2, k) })
+              if (match = mod.match($2))
                 route, block = match
 
                 return new(str, route, block, metadata).execute
