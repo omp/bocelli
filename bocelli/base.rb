@@ -34,8 +34,6 @@ module Bocelli
       end
 
       def on(route, &block)
-        name = "route #{route.inspect}"
-
         @routes[route] = block
       end
 
@@ -43,12 +41,24 @@ module Bocelli
         @modules[mod.name[/[^:]+$/].downcase.intern] ||= mod
       end
 
-      def match(str, route)
+      def match?(str, route)
         case route
         when Regexp
           str =~ route
         when String
           str == route
+        end
+      end
+
+      def match(str)
+        @routes.detect { |k, _| match?(str, k) }
+      end
+
+      def mod_match(str)
+        if str =~ /\A(\S+) (.*)/
+          if (mod = Hash[@modules.map { |k, v| [k.to_s, v] }][$1])
+            mod.match($2)
+          end
         end
       end
 
@@ -60,17 +70,7 @@ module Bocelli
             message: $3
           }
 
-          if $3 =~ /\A(\S+) (.*)/
-            if (mod = Hash[@modules.map { |k, v| [k.to_s, v] }][$1])
-              if (match = mod.match($2))
-                route, block = match
-
-                return new(str, route, block, metadata).execute
-              end
-            end
-          end
-
-          if (match = @routes.detect { |k, _| match(metadata[:message], k) })
+          if (match = match($3)) || (match = mod_match($3))
             route, block = match
 
             new(str, route, block, metadata).execute
