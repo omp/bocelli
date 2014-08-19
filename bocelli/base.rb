@@ -53,7 +53,7 @@ module Bocelli
       end
 
       def process(str)
-        if str =~ /\A(\S+) PRIVMSG (\S+) :?(.*)/
+        if str =~ /\A:?(\S+) PRIVMSG (\S+) :?(.*)/
           metadata = {
             user: $1,
             channel: $2,

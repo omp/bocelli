@@ -35,6 +35,10 @@ class TestBot < Bocelli::Base
   on 'current' do
     out '%s %s' % [@bocelli[:str].inspect, @bocelli[:route].inspect]
   end
+
+  on 'user' do
+    out @bocelli[:metadata][:user]
+  end
 end
 
 TestBot.configure('chat.freenode.net', 6667, 'bocelli%03d' % rand(1000))
