@@ -53,17 +53,24 @@ module Bocelli
       end
 
       def process(str)
-        routes = @modules.inject([]) { |m, (_, v)| m.push(*v.routes) }
-        routes.push(*@routes)
-
-        if str =~ /(\S+) PRIVMSG (\S+) :?(.*)/
+        if str =~ /\A(\S+) PRIVMSG (\S+) :?(.*)/
           metadata = {
             user: $1,
             channel: $2,
             message: $3
           }
 
-          if (match = routes.detect { |k, _| match(metadata[:message], k) })
+          if $3 =~ /\A(\S+) (.*)/
+            if (mod = Hash[@modules.map { |k, v| [k.to_s, v] }][$1])
+              if (match = mod.routes.detect { |k, _| match($2, k) })
+                route, block = match
+
+                return new(str, route, block, metadata).execute
+              end
+            end
+          end
+
+          if (match = @routes.detect { |k, _| match(metadata[:message], k) })
             route, block = match
 
             new(str, route, block, metadata).execute
